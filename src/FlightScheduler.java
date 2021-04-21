@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.*;
 
 public class FlightScheduler {
@@ -212,7 +213,8 @@ public class FlightScheduler {
                                 continue;
                             }
                             //订票成功
-                            System.out.println("Booked " + add + " passengers on flight " + id + " for a total cost of $" + cost);
+                            DecimalFormat decimalFormat = new DecimalFormat("######.00");
+                            System.out.println("Booked " + add + " passengers on flight " + id + " for a total cost of $" + decimalFormat.format(cost));
                             continue;
                         } catch (Exception e) {
                             //非整数
@@ -231,7 +233,6 @@ public class FlightScheduler {
                         flights.remove(id);
                         continue;
                     }
-
                 }
                 if (s[1].compareTo("import") == 0) {
                     try {
@@ -243,6 +244,8 @@ public class FlightScheduler {
                             try {
                                 String[] data = lineDta.split(",");
                                 String[] rt = data[0].split(" ");
+                                data[1] = data[1].toLowerCase(Locale.ROOT);
+                                data[2] = data[2].toLowerCase(Locale.ROOT);
                                 Location departure = locations.get(data[1]);
                                 Location arrival = locations.get(data[2]);
                                 Flight flight = new Flight(locations.get(data[2]), locations.get(data[1]),
@@ -316,12 +319,17 @@ public class FlightScheduler {
                 System.out.println("------------------------------------------------------- \n" +
                         "ID Departure Arrival Source --> Destination \n" +
                         "-------------------------------------------------------");
+                if(flights.size() == 0){
+                    System.out.println("(None)");
+                    continue;
+                }
                 for(Map.Entry<Integer,Flight> entry : flights.entrySet()){
                     Flight flight = entry.getValue();
                     System.out.printf(" %d %s %s %s --> %s\n",entry.getKey()
                             ,flight.getDepartTimeAtString(),flight.getArrivalTimeAtString(),
                             flight.getDeparture().getName(),flight.getArrival().getName());
                 }
+                continue;
             }
             if (s[0].compareTo("location") == 0) {
                 if (s.length == 1) {
@@ -339,7 +347,9 @@ public class FlightScheduler {
                                 "ADD Sydney -33.847927 150.651786 0.2");
                         continue;
                     }
-                    Location location = locations.get(s[2]);
+                    String t =new String(s[2]);
+                    t = t.toLowerCase(Locale.ROOT);
+                    Location location = locations.get(t);
                     if (location == null) {
                         double lat = Double.valueOf(s[3]);
                         double lon = Double.valueOf(s[4]);
@@ -360,7 +370,7 @@ public class FlightScheduler {
                             continue;
                         }
                         System.out.println("Successfully added location " + s[2] + ".");
-                        locations.put(s[2], new Location(s[2], lat, lon, demand));
+                        locations.put(t, new Location(s[2], lat, lon, demand));
                         locationArrayList.add(s[2]);
                         continue;
                     } else {
@@ -391,6 +401,8 @@ public class FlightScheduler {
                                     if (Math.abs(demand) > 1) {
                                         continue;
                                     }
+                                    String t = new String(data[0]);
+                                    t = t.toLowerCase(Locale.ROOT);
                                     locations.put(data[0], new Location(data[0], lat, lon, demand));
                                     locationArrayList.add(data[0]);
                                     ccnt++;
@@ -416,6 +428,7 @@ public class FlightScheduler {
                     }
                     continue;
                 }
+                s[1] = s[1].toLowerCase(Locale.ROOT);
                 if (!locations.containsKey(s[1])) {
                     System.out.println("Invalid location name.");
                     continue;

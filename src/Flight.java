@@ -1,3 +1,4 @@
+import java.text.DecimalFormat;
 import java.util.Map;
 
 public class Flight {
@@ -58,11 +59,13 @@ public class Flight {
 
     @Override
     public String toString() {
-        String price = String.format(""+getTicketPrice(),"%.2f");
+        DecimalFormat decimalFormat = new DecimalFormat("######.00"),dis = new DecimalFormat("###,###");
+        String price = decimalFormat.format(getTicketPrice());
+
         String str = "Flight " + id + " \n" +
                 "Departure: " + weekday + " " + hour + ":" + minute + " " + departure.getName() + " \n" +
                 "Arrival: " + weekdays[aWeekNday] + " " + aHour + ":" + aMinute + " " + arrival.getName() + " \n" +
-                "Distance: "+getDistance()+ " \n" +
+                "Distance: "+dis.format(getDistance())+"km \n" +
                 "Duration: "+getDuration()+ " \n" +
                 "Ticket Cost: $"+price+" \n" +
                 "Passengers: "+booked+"/"+capacity+"\n";
@@ -187,8 +190,11 @@ public class Flight {
     }
 
     //get the number of minutes this flight takes (round to nearest whole number)
-    public int getDuration() {
-        return 0;
+    public String getDuration() {
+        int m = (int) (getDistance() / 720 * 60);
+        int h = m/60;
+        m = m%60;
+        return h+"h "+m+"m";
     }
 
     //implement the ticket price formula
