@@ -1,0 +1,2 @@
+location import locations.csv
+flight import flights6.csv
