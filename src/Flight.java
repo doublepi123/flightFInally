@@ -50,7 +50,7 @@ public class Flight {
 
 
     static String weekdays[] = new String[]{
-            "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",
+           " ", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",
     };
 
     public String getDespartTime(){
@@ -63,8 +63,8 @@ public class Flight {
         String price = decimalFormat.format(getTicketPrice());
 
         String str = "Flight " + id + " \n" +
-                "Departure: " + weekday + " " + hour + ":" + minute + " " + departure.getName() + " \n" +
-                "Arrival: " + weekdays[aWeekNday] + " " + aHour + ":" + aMinute + " " + arrival.getName() + " \n" +
+                "Departure: " + getDepartTimeAtString()+ " " + departure.getName() + " \n" +
+                "Arrival: " + getArrivalTimeAtString() + " " + arrival.getName() + " \n" +
                 "Distance: "+dis.format(getDistance())+"km \n" +
                 "Duration: "+getDuration()+ " \n" +
                 "Ticket Cost: $"+price+" \n" +
@@ -114,10 +114,11 @@ public class Flight {
     private int aMinute;
 
 
-    public int reduce(Flight flight) {
-        return ((this.weekNday - flight.weekNday) * 24 +
-                (this.getHour() - flight.getHour())) * 60 + this.getMinute() -
-                flight.getMinute();
+    public int getDMinute(){
+        return (weekNday*24 + hour)*60+minute;
+    }
+    public int getAMinute(){
+        return (aWeekNday*24 + aHour)*60+aMinute;
     }
 
     public int getaHour() {
@@ -165,13 +166,11 @@ public class Flight {
         this.minute = minute;
         this.capacity = capacity;
         this.id = id;
+        this.weekNday = weekNday;
+        getArrivalTime();
     }
 
-    public int reduceA(Flight flight) {
-        flight.getArrivalTime();
-        getArrivalTime();
-        return ((aWeekNday - flight.aWeekNday) * 24 + aHour - flight.getaHour()) * 60 + aMinute - flight.getaMinute();
-    }
+
 
     public Location getArrival() {
         return arrival;
@@ -225,7 +224,7 @@ public class Flight {
 
     //get the distance of this flight in km
     public double getDistance() {
-        return arrival.distance(arrival, departure)/1000;
+        return arrival.distance(arrival, departure);
     }
 
     //get the layover time, in minutes, between two flights

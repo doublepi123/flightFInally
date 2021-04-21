@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -98,6 +97,8 @@ public class FlightScheduler {
                                 "ADD Monday 18:00 Sydney Melbourne 120 ");
                         continue;
                     }
+                    s[4] = s[4].toLowerCase(Locale.ROOT);
+                    s[5] = s[5].toLowerCase(Locale.ROOT);
                     Location arrival = locations.get(s[5]), departure = locations.get(s[4]);
                     if (departure == null) {
                         System.out.println("Invalid starting location.");
@@ -114,7 +115,8 @@ public class FlightScheduler {
                     }
                     String[] ts = s[3].split(":");
                     String hour = ts[0], minute = ts[1];
-                    Flight flight = new Flight(arrival, departure, s[2], Integer.valueOf(hour), Integer.valueOf(minute), weekdayList.get(weekdayList), Integer.valueOf(s[6]), nextFlightId);
+                    s[2] = s[2].substring(0,1).toUpperCase()+s[2].substring(1).toLowerCase(Locale.ROOT);
+                    Flight flight = new Flight(arrival, departure, s[2], Integer.valueOf(hour), Integer.valueOf(minute), weekdayList.get(s[2]), Integer.valueOf(s[6]), nextFlightId);
                     if (flight.getArrival().getName().compareTo(flight.getDeparture().getName()) == 0) {
                         System.out.println("Source and destination cannot be the same place.");
                         continue;
@@ -129,33 +131,34 @@ public class FlightScheduler {
 
                     for (Flight flight1 : dDFlights) {
                         if (flag > 0) break;
-                        if (flight1.reduce(flight) <= 60 && flight1.reduce(flight) >= -60) {
+                        if (Math.abs(flight.getDMinute()-flight1.getDMinute()) < 60) {
                             flag = 1;
                             cFlight = flight1;
                         }
                     }
                     for (Flight flight1 : dAFlights) {
+                        System.out.println(flight1.getAMinute()+" "+flight.getDMinute());
+                        System.out.println(flight1.getArrivalTimeAtString() + " "+ flight.getDepartTimeAtString());
                         if (flag > 0) break;
-                        if (flight1.reduceA(flight) <= 60 && flight1.reduceA(flight) >= -60) {
+                        if (Math.abs(flight1.getAMinute()-flight.getDMinute()) < 60) {
                             flag = 3;
                             cFlight = flight1;
                         }
                     }
                     for (Flight flight1 : aDFlights) {
                         if (flag > 0) break;
-                        if (flight1.reduce(flight) <= 60 && flight1.reduce(flight) >= -60) {
+                        if (Math.abs(flight1.getDMinute()-flight.getAMinute()) < 60) {
                             flag = 2;
                             cFlight = flight1;
                         }
                     }
                     for (Flight flight1 : aAFlights) {
                         if (flag > 0) break;
-                        if (flight1.reduceA(flight) <= 60 && flight1.reduceA(flight) >= -60) {
+                        if (Math.abs(flight.getAMinute()-flight1.getAMinute()) < 60) {
                             flag = 4;
                             cFlight = flight1;
                         }
                     }
-
                     switch (flag) {
                         case 0:
                             flights.put(nextFlightId++, flight);
@@ -165,15 +168,15 @@ public class FlightScheduler {
                             break;
                         case 1:
                         case 2:
-                            System.out.println("Scheduling conflict! This flight clashes with" +
-                                    "Flight " + locationArrayList.indexOf(cFlight) + " departing at " + cFlight.getDeparture().getName() + " on " +
-                                    cFlight.getWeekNday() + " " + cFlight.getHour() + ":" + cFlight.getMinute() + ".");
+                            System.out.println("Scheduling conflict! This flight clashes with " +
+                                    " Flight " + cFlight.getId() + " departing at " + cFlight.getDeparture().getName() + " on " +
+                                    cFlight.getDepartTimeAtString() + ".");
                             break;
                         case 3:
                         case 4:
                             System.out.println("Scheduling conflict! This flight clashes with" +
-                                    "Flight " + locationArrayList.indexOf(cFlight) + " arriving at " + cFlight.getDeparture().getName() + " on " +
-                                    weekdayList.get(cFlight.getaWeekNday()) + " " + cFlight.getaHour() + ":" + cFlight.getaMinute() + ".");
+                                    " Flight " + cFlight.getId() + " arriving at " + cFlight.getDeparture().getName() + " on " +
+                                    cFlight.getArrivalTimeAtString() + ".");
                             break;
                     }
                     continue;
@@ -230,7 +233,14 @@ public class FlightScheduler {
                     }
                     if (s[2].compareTo("remove") == 0) {
                         // TODO 移除航班
-                        flights.remove(id);
+                        try {
+                            Flight flight1 = flights.get(id);
+                            flights.remove(id);
+                            flight1.getArrival().getArrivalFlights().remove(flight1);
+                            flight1.getDeparture().getDepartureFlights().remove(flight1);
+                        }catch (Exception e){
+
+                        }
                         continue;
                     }
                 }
@@ -265,29 +275,34 @@ public class FlightScheduler {
                                 }
 
                                 int flag = 0;
+                                Flight cFlight = null;
 
                                 for (Flight flight1 : dDFlights) {
                                     if (flag > 0) break;
-                                    if (flight1.reduce(flight) <= 60 && flight1.reduce(flight) >= -60) {
+                                    if (Math.abs(flight.getDMinute()-flight1.getDMinute()) < 60) {
                                         flag = 1;
+                                        cFlight = flight1;
                                     }
                                 }
                                 for (Flight flight1 : dAFlights) {
                                     if (flag > 0) break;
-                                    if (flight1.reduceA(flight) <= 60 && flight1.reduceA(flight) >= -60) {
+                                    if (Math.abs(flight1.getAMinute()-flight.getDMinute()) < 60) {
                                         flag = 3;
+                                        cFlight = flight1;
                                     }
                                 }
                                 for (Flight flight1 : aDFlights) {
                                     if (flag > 0) break;
-                                    if (flight1.reduce(flight) <= 60 && flight1.reduce(flight) >= -60) {
+                                    if (Math.abs(flight1.getAMinute()-flight.getDMinute()) < 60) {
                                         flag = 2;
+                                        cFlight = flight1;
                                     }
                                 }
                                 for (Flight flight1 : aAFlights) {
                                     if (flag > 0) break;
-                                    if (flight1.reduceA(flight) <= 60 && flight1.reduceA(flight) >= -60) {
+                                    if (Math.abs(flight.getAMinute()-flight1.getAMinute()) < 60) {
                                         flag = 4;
+                                        cFlight = flight1;
                                     }
                                 }
                                 if (flag == 0) {
@@ -440,6 +455,72 @@ public class FlightScheduler {
             }
             if (s[0].compareTo("locations") == 0) {
                 System.out.println(getLocations());
+            }
+
+            if(s[0].compareTo("schedule") == 0){
+                try{
+                    s[1] = s[1].toLowerCase(Locale.ROOT);
+                    Location location = locations.get(s[1]);
+                    System.out.println("Sydney \n" +
+                            "------------------------------------------------------- \n" +
+                            "ID     Time         Departure/Arrival to/from Location \n" +
+                            "------------------------------------------------------- \n");
+                    List<Node> list = location.getSchedule();
+                    String []choice ={
+                            "", "Departure to", "Arrival from",
+                    };
+                    for(Node node:list){
+                        System.out.printf(" %d %s %s %s\n",node.getId(),node.getTime(),choice[node.getType()],node.getCity());
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                    System.out.println("This location does not exist in the system.");
+                    continue;
+                }
+            }
+
+            if(s[0].compareTo("arrivals") == 0){
+                try{
+                    s[1] = s[1].toLowerCase(Locale.ROOT);
+                    Location location = locations.get(s[1]);
+                    System.out.println(""+location.getName()+" \n" +
+                            "------------------------------------------------------- \n" +
+                            "ID     Time         Departure/Arrival to/from Location \n" +
+                            "------------------------------------------------------- \n");
+                    List<Node> list = location.getAR();
+                    String []choice ={
+                            "", "Departure to", "Arrival from",
+                    };
+                    for(Node node:list){
+                        System.out.printf(" %d %s %s %s\n",node.getId(),node.getTime(),choice[node.getType()],node.getCity());
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                    System.out.println("This location does not exist in the system.");
+                    continue;
+                }
+            }
+
+            if(s[0].compareTo("departures") == 0){
+                try{
+                    s[1] = s[1].toLowerCase(Locale.ROOT);
+                    Location location = locations.get(s[1]);
+                    System.out.println(""+location.getName()+" \n" +
+                            "------------------------------------------------------- \n" +
+                            "ID     Time         Departure/Arrival to/from Location \n" +
+                            "------------------------------------------------------- \n");
+                    List<Node> list = location.getDe();
+                    String []choice ={
+                            "", "Departure to", "Arrival from",
+                    };
+                    for(Node node:list){
+                        System.out.printf(" %d %s %s %s\n",node.getId(),node.getTime(),choice[node.getType()],node.getCity());
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                    System.out.println("This location does not exist in the system.");
+                    continue;
+                }
             }
             if (s[0].compareTo("help") == 0) {
                 System.out.println("FLIGHTS - list all available flights ordered by departure time, then departure location name \n" +
