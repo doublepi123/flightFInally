@@ -234,6 +234,8 @@ public class FlightScheduler {
                         continue;
                     }
                 }
+
+                //todo debug
                 if (s[1].compareTo("import") == 0) {
                     try {
                         File csv = new File(s[2]);
@@ -403,7 +405,7 @@ public class FlightScheduler {
                                     }
                                     String t = new String(data[0]);
                                     t = t.toLowerCase(Locale.ROOT);
-                                    locations.put(data[0], new Location(data[0], lat, lon, demand));
+                                    locations.put(t, new Location(data[0], lat, lon, demand));
                                     locationArrayList.add(data[0]);
                                     ccnt++;
                                     continue;
