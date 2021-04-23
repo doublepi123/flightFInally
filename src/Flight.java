@@ -50,7 +50,7 @@ public class Flight {
 
 
     static String weekdays[] = new String[]{
-           " ", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",
+            " ", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",
     };
 
     public String getDespartTime(){
@@ -62,17 +62,20 @@ public class Flight {
         DecimalFormat decimalFormat = new DecimalFormat("######.00"),dis = new DecimalFormat("###,###");
         String price = decimalFormat.format(getTicketPrice());
 
-        String str = "Flight " + id + " \n" +
-                "Departure: " + getDepartTimeAtString()+ " " + departure.getName() + " \n" +
-                "Arrival: " + getArrivalTimeAtString() + " " + arrival.getName() + " \n" +
-                "Distance: "+dis.format(getDistance())+"km \n" +
-                "Duration: "+getDuration()+ " \n" +
-                "Ticket Cost: $"+price+" \n" +
-                "Passengers: "+booked+"/"+capacity+"\n";
+        String str = "Flight " + id + "\n" +
+                "Departure:    " + getDepartTimeAtString()+ " " + departure.getName() + "\n" +
+                "Arrival:      " + getArrivalTimeAtString() + " " + arrival.getName() + "\n" +
+                "Distance:     "+dis.format(getDistance())+"km\n" +
+                "Duration:     "+getDuration()+ "\n" +
+                "Ticket Cost:  $"+price+"\n" +
+                "Passengers:   "+booked+"/"+capacity;
         return str;
     }
 
     public int getWeekNday() {
+        weekNday %= 7;
+        if(weekNday == 0) weekNday = 7;
+
         return weekNday;
     }
 
@@ -137,8 +140,12 @@ public class Flight {
         this.aMinute = aMinute;
     }
 
+    public int getCapacity() {
+        return capacity;
+    }
+
     public void getArrivalTime() {
-        int m = (int) (getDistance() / 720 * 60);
+        int m = (int) (getDistance() / 720 * 60 + 0.5);
         aMinute = minute + m;
         aHour = aMinute / 60 + hour;
         aMinute %= 60;
@@ -151,6 +158,8 @@ public class Flight {
     }
 
     public int getaWeekNday() {
+        aWeekNday %= 7;
+        if(aWeekNday == 0) aWeekNday = 7;
         return aWeekNday;
     }
 
@@ -158,7 +167,11 @@ public class Flight {
         this.aWeekNday = aWeekNday;
     }
 
-    public Flight(Location arrival, Location departure, String weekday, int hour, int minute, int weekNday, int capacity,int id) {
+    public int getBooked() {
+        return booked;
+    }
+
+    public Flight(Location arrival, Location departure, String weekday, int hour, int minute, int weekNday, int capacity, int booked, int id) {
         this.arrival = arrival;
         this.departure = departure;
         this.weekday = weekday;
@@ -167,6 +180,7 @@ public class Flight {
         this.capacity = capacity;
         this.id = id;
         this.weekNday = weekNday;
+        this.booked = booked;
         getArrivalTime();
     }
 

@@ -8,6 +8,8 @@ public class Location {
 	private ArrayList<Flight> arrivalFlights;
 	private ArrayList<Flight> departureFlights;
 	public Location(String name, double lat, double lon, double demand) {
+		this.lon = 0;
+		this.lat = 0;
 		departureFlights = new ArrayList<>();
 		arrivalFlights = new ArrayList<>();
 		this.name = name;
@@ -99,12 +101,13 @@ public class Location {
 	}
 
 	//Implement the Haversine formula - return value in kilometres
-    public static double distance(Location l1, Location l2) {
+	public static double distance(Location l1, Location l2) {
+		if (l1 == null || l2 == null) return 0;
 		return getDistanceFrom2LngLat(l1.lon,l1.lat,l2.lon,l2.lat);
-    }
+	}
 
 
-    public void addArrival(Flight f) {
+	public void addArrival(Flight f) {
 		arrivalFlights.add(f);
 		arrivalFlights.sort(new Comparator<Flight>() {
 			@Override
@@ -157,7 +160,7 @@ public class Location {
 			}
 		});
 	}
-	
+
 	/**
 	 * Check to see if Flight f can depart from this location.
 	 * If there is a clash, the clashing flight string is returned, otherwise null is returned.
@@ -167,9 +170,9 @@ public class Location {
 	 */
 	public String hasRunwayDepartureSpace(Flight f) {
 		return null;
-    }
+	}
 
-    /**
+	/**
 	 * Check to see if Flight f can arrive at this location.
 	 * A conflict is determined by if any other flights are arriving or departing at this location within an hour of this flight's arrival time.
 	 * @param f The flight to check.
@@ -177,7 +180,7 @@ public class Location {
 	 */
 	public String hasRunwayArrivalSpace(Flight f) {
 		return null;
-    }
+	}
 }
 class Node {
 	private String time;
